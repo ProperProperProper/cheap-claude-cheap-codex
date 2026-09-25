@@ -1,16 +1,25 @@
-# Haiku + Fast Mode Setup
+# 💰 Cheap Claude + Cheap Codex
 
-Force Claude CLI & Codex to use the cheapest, fastest configuration for maximum cost savings.
+**Force BOTH Claude CLI AND Codex to use Haiku + Fast Mode for maximum cost savings.**
 
-**Cost Reduction:** ~50-80% cheaper than default models  
-**Speed Improvement:** Fast mode reduces output tokens  
-**Setup Time:** ~2 minutes for both tools
+Save **50-80% on Claude costs** while keeping full capability. Works with both tools.
 
-## Quick Start
+---
+
+## 📋 Quick Navigation
+
+| Tool | Time | File | Goal |
+|------|------|------|------|
+| **Claude CLI** | 30 sec | `~/.claude/settings.json` | Add 2 settings → Use Haiku + fast mode always |
+| **Codex** | 2 min | `claude_subscription_mcp.py` | Edit 1 line → Route to Haiku + fast mode |
+
+---
+
+## ⚡ Quick Start
 
 ### Claude CLI (30 seconds)
 
-Edit or create `~/.claude/settings.json`:
+Edit or create **`~/.claude/settings.json`:**
 
 ```json
 {
@@ -20,202 +29,329 @@ Edit or create `~/.claude/settings.json`:
 }
 ```
 
-### Codex (2 minutes)
-
-Edit `claude_subscription_mcp.py` in your Codex MCP integration directory (typically `~/Documents/Codex/.integrations/smart-model-router/`):
-
-```python
-# Around line 10, change this:
-SETTINGS = json.dumps({"env": {"ANTHROPIC_API_KEY": "", ...}})
-
-# To this:
-SETTINGS = json.dumps({"model": "haiku", "fastMode": True, "env": {"ANTHROPIC_API_KEY": "", ...}})
-```
-
-Restart Codex. Done! ✅
-
-## Why Haiku + Fast Mode?
-
-| Model | Cost/1M tokens | Speed | Best For |
-|-------|----------------|-------|----------|
-| **Haiku** ⭐ | $0.80 | Fastest | Code, summaries, high-volume |
-| Sonnet | $3.00 | Fast | Balanced capability |
-| Opus | $15.00 | Slower | Complex reasoning |
-
-### Cost Savings Example
-- **100 questions/month on Sonnet:** $0.30
-- **100 questions/month on Haiku:** $0.08
-- **Monthly savings:** $0.22 (73% reduction)
-
-At scale (1,000 queries/month), you save **$2.20+** with Haiku + Fast Mode.
-
-## Detailed Setup
-
-### Claude CLI Setup
-
-**File:** `~/.claude/settings.json`
-
-```json
-{
-  "theme": "dark",
-  "model": "haiku",
-  "fastMode": true,
-  "verbose": false
-}
-```
-
-**Verify:**
-```bash
-claude "What model are you using?"
-# Response: "I'm Claude, using Haiku model..."
-```
-
-**Override per session:**
-```bash
-claude --model opus "Complex reasoning task"  # Use Opus this once
-claude "Normal task"  # Back to Haiku
-```
-
-### Codex Setup
-
-**File path:** Typically `~/Documents/Codex/.integrations/smart-model-router/claude_subscription_mcp.py`
-
-**Before:**
-```python
-CLAUDE = os.environ.get("CLAUDE_BIN", "claude")
-SETTINGS = json.dumps({"env": {"ANTHROPIC_API_KEY": "", "ANTHROPIC_AUTH_TOKEN": "", "ANTHROPIC_BASE_URL": ""}})
-```
-
-**After:**
-```python
-CLAUDE = os.environ.get("CLAUDE_BIN", "claude")
-SETTINGS = json.dumps({"model": "haiku", "fastMode": True, "env": {"ANTHROPIC_API_KEY": "", "ANTHROPIC_AUTH_TOKEN": "", "ANTHROPIC_BASE_URL": ""}})
-```
-
-**Restart Codex** (quit and reopen). All Claude routing now uses Haiku + fast mode.
-
-## Configuration Reference
-
-| Tool | File | Setting |
-|------|------|---------|
-| **Claude CLI** | `~/.claude/settings.json` | `"model": "haiku"` + `"fastMode": true` |
-| **Codex** | `claude_subscription_mcp.py` | `"model": "haiku"` + `"fastMode": True` |
-
-## FAQ
-
-### Can I override this per session?
-Yes! Claude CLI respects `--model` flag:
-```bash
-claude --model opus "complex task"  # Override to Opus
-claude "normal task"                # Back to Haiku (default)
-```
-
-### What if I need more capability?
-Haiku is excellent for code tasks, summaries, and focused work. For complex reasoning, use `--model opus` on demand. Fast mode is ideal for high-volume work.
-
-### Does fast mode affect output quality?
-Fast mode reduces output tokens (more concise), not quality. Responses are shorter but still complete. Perfect for code, summaries, and structured output.
-
-### Will this break my workflows?
-No. Haiku + fast mode is backward compatible. All Claude CLI and Codex features work identically. The only difference you'll notice is in your billing.
-
-### How do I check what's configured?
-```bash
-# Claude CLI
-cat ~/.claude/settings.json
-
-# Codex
-grep "SETTINGS = " ~/Documents/Codex/.integrations/smart-model-router/claude_subscription_mcp.py
-```
-
-### Can I use different settings for different projects?
-Yes! Create `.claude/settings.json` in your project directory. Claude Code reads project settings first:
-```bash
-# Project-specific Haiku config
-mkdir my-project/.claude
-echo '{"model": "haiku", "fastMode": true}' > my-project/.claude/settings.json
-```
-
-## Performance Notes
-
-### Latency
-- Haiku: ~200-300ms average response time
-- Sonnet: ~300-400ms average response time
-- **Fast mode adds 0-50ms savings** by reducing output generation
-
-### Quality
-- Haiku excels at code, structured output, and focused tasks
-- Use Opus for open-ended reasoning, creative work, or complex analysis
-- Fast mode produces more concise (not lower quality) responses
-
-### Recommendations
-- **Use Haiku + Fast Mode for:**
-  - Code generation and refactoring
-  - API interactions and tool use
-  - Summaries and structured output
-  - High-volume querying
-  - Trading/finance calculations (like OMLX analysis)
-
-- **Use Sonnet/Opus for:**
-  - Complex reasoning tasks
-  - Open-ended creative work
-  - Long-form analysis
-  - When you need maximum capability
-
-## Advanced: Custom Model Routing
-
-For Codex, if you want different models for different routing modes, edit `smart_model_router_mcp.py`:
-
-```python
-# Default model for Claude routing
-DEFAULT_MODEL = "haiku"
-FAST_MODE = True
-
-# Override as needed:
-SETTINGS = json.dumps({
-    "model": DEFAULT_MODEL,
-    "fastMode": FAST_MODE,
-    "env": {...}
-})
-```
-
-## Troubleshooting
-
-### Claude CLI not using Haiku
-Check your settings:
-```bash
-cat ~/.claude/settings.json
-```
-
-If empty or missing `model` field, add it and save.
-
-### Codex still using expensive model
-1. Verify the file path to `claude_subscription_mcp.py`
-2. Check the SETTINGS variable was updated (around line 10)
-3. Restart Codex completely (quit from menu, not just close window)
-4. Check logs: `~/Applications/ChatGPT.app/Contents/Logs/` (varies by OS)
-
-### Settings not applying
-- **Claude CLI:** Clear cache: `rm -rf ~/.claude/cache`
-- **Codex:** Restart the app
-- Both should apply within seconds
-
-## Contributing
-
-Found a better setup? Have improvements? Open an issue or PR!
-
-## License
-
-MIT — Use freely, modify, share.
-
-## Resources
-
-- [Claude API Docs](https://docs.anthropic.com)
-- [Claude Code Guide](https://claude.com/claude-code)
-- [Haiku Model Card](https://docs.anthropic.com/claude/docs/models-overview#claude-haiku)
+**Test:** `claude "What model are you using?"` → Should say Haiku ✅
 
 ---
 
-**Questions?** Open an issue on GitHub.
+### Codex (2 minutes)
 
-**Setup complete?** You're now saving 50-80% on Claude usage. 🎉
+**Find:** `~/Documents/Codex/.integrations/smart-model-router/claude_subscription_mcp.py`
+
+**Edit line ~10** from:
+```python
+SETTINGS = json.dumps({"env": {"ANTHROPIC_API_KEY": "", ...}})
+```
+
+**To:**
+```python
+SETTINGS = json.dumps({"model": "haiku", "fastMode": True, "env": {"ANTHROPIC_API_KEY": "", ...}})
+```
+
+**Restart Codex.** Done! ✅
+
+---
+
+## 💡 Why? Cost Breakdown
+
+### Per 1 Million Tokens
+| Model | Cost | Speed |
+|-------|------|-------|
+| **Haiku** 🏆 | $0.80 | Fastest |
+| Sonnet | $3.00 | Fast |
+| Opus | $15.00 | Slower |
+
+### Real-World Savings (100 queries/month)
+
+| Scenario | Default | Cheap Claude + Codex | Savings |
+|----------|---------|----------------------|---------|
+| Claude CLI only | $0.30 | $0.08 | $0.22 (73%) |
+| Codex only | $0.30 | $0.08 | $0.22 (73%) |
+| **Both tools** | $0.60 | $0.16 | **$0.44 (73%)** |
+
+**At scale (1,000 queries/month):** Save **$4.40/month** with both tools.
+
+---
+
+## 📚 Complete Guides
+
+### Claude CLI Setup (Full)
+See **[SETUP_CLI.md](SETUP_CLI.md)** for:
+- Detailed file location and syntax
+- How to verify settings work
+- Per-session overrides
+- Project-specific settings
+- Troubleshooting
+
+### Codex Setup (Full)
+See **[SETUP_CODEX.md](SETUP_CODEX.md)** for:
+- Finding your integration file (multiple locations)
+- Exact line-by-line edit instructions
+- How to verify Codex is using Haiku
+- MCP routing explanation
+- Detailed troubleshooting
+
+---
+
+## 🔧 Troubleshooting
+
+### Claude CLI Not Using Haiku?
+
+```bash
+# Check settings exist and are valid
+cat ~/.claude/settings.json | python3 -m json.tool
+
+# Clear cache
+rm -rf ~/.claude/cache
+
+# Restart and test
+claude "test"
+```
+
+**See [SETUP_CLI.md](SETUP_CLI.md) for full CLI troubleshooting.**
+
+---
+
+### Codex Still Expensive?
+
+```bash
+# Find the file
+FILE=$(find ~/Documents/Codex -name "claude_subscription_mcp.py" 2>/dev/null | head -1)
+
+# Check it was edited
+grep "haiku" "$FILE"
+# Should show: {"model": "haiku", "fastMode": True, ...}
+
+# Kill Codex processes
+pkill -9 -f Codex
+
+# Verify killed (should be empty)
+ps aux | grep -i codex | grep -v grep
+
+# Restart Codex from Applications
+```
+
+**See [SETUP_CODEX.md](SETUP_CODEX.md) for detailed Codex troubleshooting.**
+
+---
+
+## 🎓 Advanced
+
+### Override Per Session (Claude CLI Only)
+
+```bash
+# Use expensive model once
+claude --model opus "Complex analysis"
+
+# Back to Haiku (your default)
+claude "Normal task"
+```
+
+### Switch Model Permanently (Codex)
+
+Edit `SETTINGS` in `claude_subscription_mcp.py`:
+
+```python
+# Use Sonnet instead (3x more expensive, better reasoning)
+SETTINGS = json.dumps({"model": "sonnet", "fastMode": True, "env": {...}})
+
+# Or use Opus (expensive but best)
+SETTINGS = json.dumps({"model": "opus", "fastMode": False, "env": {...}})
+```
+
+Then restart Codex.
+
+### Custom Routing (Codex)
+
+Route different questions to different models:
+
+```python
+def get_model(prompt):
+    if "complex" in prompt.lower():
+        return "opus"  # Expensive, powerful
+    elif "code" in prompt.lower():
+        return "haiku"  # Cheap, fast
+    else:
+        return "sonnet"  # Balanced
+
+# Use: model = get_model(prompt)
+```
+
+---
+
+## ❓ FAQ
+
+### Does fast mode affect output quality?
+No. Fast mode reduces output tokens (more concise), not quality. Perfect for:
+- Code generation
+- Summaries  
+- Structured output
+- High-volume work
+
+### Can I use different settings for different projects?
+**Claude CLI:** Yes! Create `.claude/settings.json` in your project directory.
+
+**Codex:** Edit the file to change for all queries.
+
+### What if I need more capability?
+- **Claude CLI:** Use `--model opus` on demand
+- **Codex:** Temporarily edit settings to use Sonnet or Opus, then change back
+
+### Will this break anything?
+No. Haiku + fast mode is fully compatible. All Claude CLI and Codex features work identically. Only your billing changes.
+
+### How do I disable it?
+**Claude CLI:**
+```bash
+rm ~/.claude/settings.json
+```
+
+**Codex:**
+Revert the `SETTINGS` line to original, restart Codex.
+
+---
+
+## 📁 Files in This Repo
+
+| File | Purpose |
+|------|---------|
+| **README.md** | This overview |
+| **SETUP_CLI.md** | Claude CLI detailed guide |
+| **SETUP_CODEX.md** | Codex detailed guide + troubleshooting |
+| **examples/claude-settings.json** | Example Claude settings (copy to `~/.claude/settings.json`) |
+| **examples/codex-claude_subscription_mcp.py** | Example Codex MCP bridge (reference) |
+| **CONTRIBUTING.md** | How to contribute improvements |
+| **LICENSE** | MIT license |
+
+---
+
+## 🚀 Real-World Examples
+
+### Example 1: Code Review
+```bash
+claude --model opus "Review this architecture" < myfile.py
+# Uses expensive Opus (better reasoning)
+# Cost: $0.015
+```
+
+### Example 2: Quick Fix
+```bash
+claude "Fix this syntax error" < myfile.py
+# Uses cheap Haiku + fast mode (default)
+# Cost: $0.0008
+```
+
+### Example 3: Codex Analysis
+```
+You (Codex): "Why is my momentum dimension at 95.2%?"
+→ Smart router detects trading keywords
+→ Routes to Claude Haiku + Fast Mode
+→ Returns analysis with live calibration data
+Cost: $0.0008 per query (vs $0.003 default)
+```
+
+### Example 4: High-Volume Work
+```
+You (Codex): 10 backtest questions in a session
+→ Each routes to Haiku + Fast Mode
+→ Total cost: $0.008
+→ Vs $0.030 with default Sonnet
+→ Savings: $0.022
+```
+
+---
+
+## 🔄 Hybrid Approach (Recommended)
+
+**Claude CLI:**
+```bash
+claude "quick task"                    # Haiku + Fast (cheap)
+claude --model opus "deep analysis"    # Opus (expensive, once)
+claude "back to normal"                # Haiku + Fast (default)
+```
+
+**Codex:**
+```python
+# Keep settings at Haiku + Fast (default)
+SETTINGS = json.dumps({"model": "haiku", "fastMode": True, ...})
+
+# Use Opus for important analysis by temporarily changing settings
+# Then change back
+```
+
+---
+
+## 🎯 Performance Tips
+
+### For Speed
+- Use Haiku + Fast Mode (default)
+- Fast mode produces concise output
+- Perfect for code, summaries, structured tasks
+- **Latency:** 200-300ms avg
+
+### For Quality
+- Use Sonnet/Opus for complex reasoning
+- Turn off fast mode for longer responses
+- Better for creative work, deep analysis
+- **Latency:** 300-600ms avg
+
+### Cost vs Quality Trade-Off
+```
+High Volume, Good Speed    → Haiku + Fast ✅
+Balanced Work              → Sonnet + Fast
+Complex Reasoning          → Opus (no fast mode)
+Important Decisions        → Opus (full reasoning)
+```
+
+---
+
+## 📊 Token Efficiency
+
+### Claude CLI
+With Haiku + Fast Mode default:
+- Save ~$0.22 per 100 queries (73% reduction)
+- ~200-300ms response time
+- Perfect for high-volume work
+
+### Codex
+With Haiku + Fast Mode routing:
+- Every Claude routing uses cheap model
+- Save ~$0.22 per 100 queries (73% reduction)
+- Transparent to you—just use Codex normally
+
+### Both Tools Combined
+- **100 queries:** Save $0.44/month
+- **1,000 queries:** Save $4.40/month
+- **10,000 queries:** Save $44.00/month
+
+---
+
+## 🔗 Related Links
+
+- [Claude API Docs](https://docs.anthropic.com)
+- [Claude Code Guide](https://claude.com/claude-code)
+- [Anthropic Models](https://docs.anthropic.com/claude/docs/models-overview)
+- [Haiku Model Specs](https://docs.anthropic.com/claude/docs/models-overview#claude-haiku)
+
+---
+
+## 🤝 Contributing
+
+Found an issue or improvement? Open a PR or issue!
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+---
+
+## 📜 License
+
+MIT — Use freely, modify, share.
+
+---
+
+## 🎉 You're Set!
+
+Both **Cheap Claude** and **Cheap Codex** are now running Haiku + Fast Mode.
+
+**Save 50-80% on Claude costs while keeping full capability.** ✅
+
+Questions? Check [SETUP_CLI.md](SETUP_CLI.md) or [SETUP_CODEX.md](SETUP_CODEX.md).
