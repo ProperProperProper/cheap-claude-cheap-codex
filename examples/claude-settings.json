@@ -1,0 +1,14 @@
+{
+  "comment": "Claude CLI settings file. Copy to ~/.claude/settings.json",
+  "theme": "dark",
+  "model": "haiku",
+  "fastMode": true,
+  "verbose": false,
+  "editorMode": "vim",
+  "permissions": {
+    "defaultMode": "auto"
+  },
+  "sandbox": {
+    "enabled": true
+  }
+}
